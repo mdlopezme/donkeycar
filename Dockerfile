@@ -1,4 +1,4 @@
-FROM nvidia/cuda:11.7.1-devel-ubuntu20.04 as base
+FROM nvidia/cuda:11.7.1-devel-ubuntu20.04
 LABEL maintainer="Moises Lopez <mdlopezme@gmail.com>"
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -30,6 +30,7 @@ RUN apt update && DEBIAN_FRONTEND=noninteractive apt -y install --no-install-rec
   && apt clean \
   && rm -rf /var/lib/apt/lists/*
 
+# Upgrade pip and install requirements
 RUN python3 -m pip install --upgrade pip
 
 RUN DEBIAN_FRONTEND=noninteractive pip3 uninstall --no-cache tensorflow && \
@@ -50,6 +51,7 @@ RUN apt update && DEBIAN_FRONTEND=noninteractive apt -y install --no-install-rec
     && apt clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Install NVIDIA tools
 RUN echo export CUDA_HOME="/usr/local/cuda-11.7" >> /etc/bash.bashrc && \
     echo export PATH="/usr/local/cuda-11.7/bin:${PATH}" >> /etc/bash.bashrc && \
     echo export LD_LIBRARY_PATH="/usr/local/cuda-11.7/lib64:${LD_LIBRARY_PATH}" >> /etc/bash.bashrc
@@ -57,14 +59,22 @@ RUN echo export CUDA_HOME="/usr/local/cuda-11.7" >> /etc/bash.bashrc && \
 RUN DEBIAN_FRONTEND=noninteractive pip3 install -U --no-cache install cupy-cuda117 tensorflow-gpu==2.8.0 && \
     DEBIAN_FRONTEND=noninteractive pip3 install -U --no-cache install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu117
 
+# Install donkey car
 RUN git clone https://github.com/sisaha9/donkeycar.git -b sid_devel && \
     cd donkeycar && \
     DEBIAN_FRONTEND=noninteractive pip3 install -U --no-cache install -e .[pc]
 
-RUN git clone https://github.com/sisaha9/gym-donkeycar -b sid_devel && \
-    cd gym-donkeycar && \
-    DEBIAN_FRONTEND=noninteractive pip3 install -U --no-cache install -e .[gym-donkeycar]
+# RUN git clone https://github.com/sisaha9/gym-donkeycar -b sid_devel && \
+#     cd gym-donkeycar && \
+#     DEBIAN_FRONTEND=noninteractive pip3 install -U --no-cache install -e .[gym-donkeycar]
 
-CMD ["/bin/bash"]
-
-
+# Install web application interface
+WORKDIR /code
+ENV FLASK_APP=app.py
+ENV FLASK_RUN_HOST=0.0.0.0
+COPY requirements.txt requirements.txt
+RUN apt install -y gcc
+RUN pip install -r requirements.txt
+EXPOSE 5000
+COPY . .
+CMD ["flask", "run"]
