@@ -1,4 +1,4 @@
-FROM nvidia/cuda:11.7.1-devel-ubuntu20.04
+FROM nvidia/cuda:11.7.1-devel-ubuntu20.04 as base
 LABEL maintainer="Moises Lopez <mdlopezme@gmail.com>"
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -59,14 +59,13 @@ RUN echo export CUDA_HOME="/usr/local/cuda-11.7" >> /etc/bash.bashrc && \
 RUN DEBIAN_FRONTEND=noninteractive pip3 install -U --no-cache install cupy-cuda117 tensorflow-gpu==2.8.0 && \
     DEBIAN_FRONTEND=noninteractive pip3 install -U --no-cache install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu117
 
-# Install donkey car
-RUN git clone https://github.com/sisaha9/donkeycar.git -b sid_devel && \
+RUN git clone https://github.com/sisaha9/donkeycar.git && \
     cd donkeycar && \
     DEBIAN_FRONTEND=noninteractive pip3 install -U --no-cache install -e .[pc]
 
-# RUN git clone https://github.com/sisaha9/gym-donkeycar -b sid_devel && \
-#     cd gym-donkeycar && \
-#     DEBIAN_FRONTEND=noninteractive pip3 install -U --no-cache install -e .[gym-donkeycar]
+RUN git clone https://github.com/sisaha9/gym-donkeycar -b sid_devel && \
+    cd gym-donkeycar && \
+    DEBIAN_FRONTEND=noninteractive pip3 install -U --no-cache install -e .[gym-donkeycar]
 
 # Install web application interface
 WORKDIR /code
