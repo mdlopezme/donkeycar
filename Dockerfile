@@ -20,6 +20,7 @@ RUN apt update && DEBIAN_FRONTEND=noninteractive apt -y install --no-install-rec
   net-tools \
   rsync \
   zip \
+  unzip \
   htop \
   curl \
   wget \

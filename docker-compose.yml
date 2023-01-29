@@ -1,22 +1,20 @@
 version: '3.3'
 
 services:
-  redis:
-      image: "redis:alpine"
   donkeycar:
     build: .
     ports:
-      - "8000:5000"
+      - "5000:5000"
     image: mdlopezme/donkeycar:staging
     # network_mode: "host"
     # privileged: true
     # stdin_open: true
     # tty: true
     container_name: donkey_trainer
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
